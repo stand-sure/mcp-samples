@@ -59,6 +59,22 @@ There is a critical startup order that must be followed for the AI Assistant to 
 
 If the connection is not working, the most likely cause is that the IDE was started before the server. The easiest way to fix this is to close the IDE, ensure the server is running, and then reopen the IDE. Starting a new chat with the AI Assistant may also re-trigger the connection attempt.
 
+**Settings > Tools AI Assistant > Model Context Protocol (MCP)
+
+```json
+{
+  "mcpServers": {
+    "my-csharp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "http://localhost:5272/sse"
+      ]
+    }
+  }
+}
+```
 
 ## Usage Example
 
