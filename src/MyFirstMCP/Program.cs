@@ -1,29 +1,33 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using MyFirstMCP;
-
+﻿using MyFirstMCP;
 using Serilog;
-using Serilog.Context;
+using Serilog.Events;
 using Serilog.Formatting.Compact;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-    .WriteTo.Console(new CompactJsonFormatter())
-    .Enrich.FromLogContext()
-    .Enrich.WithMachineName()
-    .MinimumLevel.Information();
+builder.Host.UseSerilog((context, provider, config) =>
+{
+    config
+        .WriteTo.Console(
+            new CompactJsonFormatter(),
+            standardErrorFromLevel: LogEventLevel.Verbose)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .MinimumLevel.Debug();
+});
 
-Log.Logger = loggerConfiguration.CreateLogger();
-
+// Configure the MCP Server with HTTP transport
 builder.Services
     .AddMcpServer()
-    .WithStdioServerTransport()
+    .WithHttpTransport()
     .WithTools<EchoTool>();
 
-IHost app = builder.Build();
+var app = builder.Build();
 
-await app.RunAsync();
+// Map the required MCP endpoints
+app.MapMcp();
+
+// This will start the web server
+app.Run();
 
 internal static partial class Program;
